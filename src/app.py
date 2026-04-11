@@ -15,17 +15,25 @@ st.set_page_config(page_title="ClauseWise", page_icon="📄", layout="wide")
 st.title("📄 ClauseWise")
 st.caption("Document Intelligence with QA + Evaluation + Contradiction Detection")
 
+# API KEY (works locally + cloud)
 api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    try:
+        api_key = st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        api_key = None
 
 if not api_key:
-    st.error("Missing GEMINI_API_KEY in .env")
+    st.error("Missing GEMINI_API_KEY. Add it to .env locally or Streamlit secrets in cloud.")
     st.stop()
 
+# Session state
 if "sections" not in st.session_state:
     st.session_state.sections = []
 if "processed" not in st.session_state:
     st.session_state.processed = False
 
+# Sidebar
 with st.sidebar:
     st.header("Upload Documents")
 
@@ -47,6 +55,7 @@ with st.sidebar:
 
             st.success(f"Loaded {len(st.session_state.sections)} sections")
 
+# Tabs
 tab1, tab2, tab3 = st.tabs(["Ask Questions", "View Sections", "Contradictions"])
 
 # TAB 1 — Ask Questions
