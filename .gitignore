@@ -1,0 +1,6 @@
+.venv
+.env
+__pycache__/
+input/
+output/
+scratch_blocks/
