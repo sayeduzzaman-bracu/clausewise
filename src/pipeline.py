@@ -1,13 +1,12 @@
 from pathlib import Path
 import tempfile
 
-from src.extractor import extract_all, extract_txt
-from src.section_parser import parse_sections
-from src.retriever import retrieve_sections
+from extractor import extract_all, extract_txt
+from section_parser import parse_sections
+from retriever import retrieve_sections
 
 
 def load_all_sections_from_folder(input_dir):
-    """Load documents from a folder and parse into sections."""
     docs = extract_all(input_dir)
 
     all_sections = []
@@ -19,7 +18,6 @@ def load_all_sections_from_folder(input_dir):
 
 
 def load_all_sections_from_uploads(uploaded_files):
-    """Load uploaded TXT files from Streamlit and parse into sections."""
     all_sections = []
 
     for uploaded_file in uploaded_files:
@@ -39,5 +37,5 @@ def load_all_sections_from_uploads(uploaded_files):
 
 
 def run_retrieval(query, all_sections, top_k=3):
-    """Retrieve top matching sections."""
+    return retrieve_sections(query, all_sections, top_k=top_k)
     return retrieve_sections(query, all_sections, top_k=top_k)
