@@ -14,7 +14,7 @@ load_dotenv()
 
 st.set_page_config(
     page_title="ClauseWise",
-    page_icon="✨",
+    page_icon="📄",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -24,9 +24,9 @@ LANGUAGES = {
         "code": "en",
         "title": "ClauseWise",
         "hero_badge": "AI Document Intelligence",
-        "hero_title": "Turn raw documents into\nanswers, contradictions,\nand decision insight.",
-        "hero_subtitle": "A colorful, client-facing workspace for grounded QA, contradiction checks, and insight generation.",
-        "upload_header": "Control Center",
+        "hero_title": "Turn raw documents into trusted answers and decision insight.",
+        "hero_subtitle": "A structured document analysis workspace for grounded QA, contradiction checks, and recommendations.",
+        "upload_header": "Workspace",
         "upload_label": "Upload TXT files",
         "upload_help": "Only .txt files are supported right now.",
         "top_sections": "Top sections",
@@ -35,8 +35,8 @@ LANGUAGES = {
         "processing": "Processing files...",
         "loaded_sections": "Loaded {count} sections.",
         "file_report": "File Processing Report",
-        "ask_tab": "Ask",
-        "view_tab": "Sections",
+        "ask_tab": "Ask Questions",
+        "view_tab": "View Sections",
         "contradictions_tab": "Contradictions",
         "insights_tab": "Insights",
         "process_first": "Upload and process documents first.",
@@ -77,18 +77,17 @@ LANGUAGES = {
         "sample_q1": "What are the payment terms?",
         "sample_q2": "Are there contradictions between the uploaded documents?",
         "sample_q3": "Summarize the biggest risks.",
-        "language_toggle": "Language / Språk",
-        "ready": "Ready",
+        "ready": "System ready",
         "empty_state_title": "No documents yet",
-        "empty_state_text": "Upload files from the sidebar, process them, then start exploring the document universe.",
+        "empty_state_text": "Upload files from the sidebar, process them, then start exploring the document workspace.",
     },
     "Svenska": {
         "code": "sv",
         "title": "ClauseWise",
         "hero_badge": "AI-dokumentintelligens",
-        "hero_title": "Förvandla råa dokument till\nsvar, motsägelser,\noch beslutsinsikter.",
-        "hero_subtitle": "En färgstark, kundvänlig arbetsyta för grundad QA, motsägelsekontroll och insiktsgenerering.",
-        "upload_header": "Kontrollcenter",
+        "hero_title": "Förvandla råa dokument till pålitliga svar och beslutsinsikter.",
+        "hero_subtitle": "En strukturerad arbetsyta för dokumentanalys med grundad QA, motsägelsekontroll och rekommendationer.",
+        "upload_header": "Arbetsyta",
         "upload_label": "Ladda upp TXT-filer",
         "upload_help": "Endast .txt stöds just nu.",
         "top_sections": "Toppsektioner",
@@ -97,8 +96,8 @@ LANGUAGES = {
         "processing": "Bearbetar filer...",
         "loaded_sections": "Laddade {count} sektioner.",
         "file_report": "Filbearbetningsrapport",
-        "ask_tab": "Frågor",
-        "view_tab": "Sektioner",
+        "ask_tab": "Ställ frågor",
+        "view_tab": "Visa sektioner",
         "contradictions_tab": "Motsägelser",
         "insights_tab": "Insikter",
         "process_first": "Ladda upp och bearbeta dokument först.",
@@ -133,227 +132,213 @@ LANGUAGES = {
         "stats_documents": "Bearbetade filer",
         "stats_sections": "Sektioner",
         "stats_contradictions": "Motsägelser",
-        "welcome_title": "Byggd för strukturerad dokumentresonemang",
-        "welcome_text": "Fungerar bäst med strukturerade TXT-dokument. Om inga juridiska sektionsrubriker hittas, används styckesindelning som reservplan.",
+        "welcome_title": "Byggd för strukturerad dokumentanalys",
+        "welcome_text": "Fungerar bäst med strukturerade TXT-dokument. Om inga juridiska sektionsrubriker hittas används styckesindelning som reservlösning.",
         "sample_questions": "Exempelfrågor",
         "sample_q1": "Vad är betalningsvillkoren?",
         "sample_q2": "Finns det motsägelser mellan de uppladdade dokumenten?",
         "sample_q3": "Sammanfatta de största riskerna.",
-        "language_toggle": "Language / Språk",
-        "ready": "Redo",
+        "ready": "System redo",
         "empty_state_title": "Inga dokument ännu",
-        "empty_state_text": "Ladda upp filer från sidopanelen, bearbeta dem och börja sedan utforska dokumentgalaxen.",
+        "empty_state_text": "Ladda upp filer från sidopanelen, bearbeta dem och börja sedan utforska dokumentarbetsytan.",
     }
 }
+
+
+def esc(text: str) -> str:
+    return html.escape(str(text)).replace("\n", "<br>")
 
 
 def inject_custom_css():
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        html, body, [class*="css"] {
+            font-family: 'Inter', sans-serif;
+        }
+
         .stApp {
-            background:
-                radial-gradient(circle at top left, rgba(255, 0, 153, 0.18), transparent 28%),
-                radial-gradient(circle at top right, rgba(0, 255, 255, 0.14), transparent 24%),
-                radial-gradient(circle at bottom left, rgba(255, 191, 0, 0.12), transparent 28%),
-                linear-gradient(180deg, #0b1020 0%, #0e152d 48%, #0a1224 100%);
+            background: #0f172a;
         }
 
         .block-container {
-            max-width: 1250px;
-            padding-top: 1.1rem;
+            max-width: 1240px;
+            padding-top: 1.2rem;
             padding-bottom: 2rem;
         }
 
         [data-testid="stSidebar"] {
-            background: linear-gradient(180deg, rgba(18,25,47,0.95), rgba(13,18,34,0.98));
-            border-right: 1px solid rgba(255,255,255,0.08);
+            background: #111827;
+            border-right: 1px solid rgba(148, 163, 184, 0.14);
         }
 
-        .hero-shell {
-            position: relative;
-            overflow: hidden;
-            padding: 1.35rem 1.4rem 1.3rem 1.4rem;
-            border-radius: 28px;
-            background:
-                linear-gradient(135deg, rgba(255,0,153,0.18), rgba(76,110,245,0.18) 38%, rgba(0,200,151,0.16) 72%, rgba(255,191,0,0.14));
-            border: 1px solid rgba(255,255,255,0.10);
-            box-shadow: 0 24px 80px rgba(0,0,0,0.28);
+        .hero {
+            padding: 1.4rem 1.45rem;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 58%, #0b2239 100%);
+            border: 1px solid rgba(148, 163, 184, 0.16);
             margin-bottom: 1rem;
-        }
-
-        .hero-shell:before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(circle at 15% 20%, rgba(255,255,255,0.14), transparent 18%),
-                radial-gradient(circle at 85% 25%, rgba(255,255,255,0.10), transparent 18%);
-            pointer-events: none;
         }
 
         .hero-badge {
             display: inline-block;
-            padding: 0.34rem 0.75rem;
+            padding: 0.35rem 0.72rem;
             border-radius: 999px;
-            background: rgba(255,255,255,0.10);
-            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.28);
+            color: #bfdbfe;
             font-size: 0.78rem;
             font-weight: 700;
-            letter-spacing: 0.02em;
             margin-bottom: 0.8rem;
         }
 
         .hero-title {
-            font-size: 2.55rem;
-            line-height: 1.03;
-            font-weight: 900;
+            font-size: 2.15rem;
+            line-height: 1.08;
+            font-weight: 800;
             letter-spacing: -0.03em;
-            white-space: pre-line;
-            margin-bottom: 0.7rem;
+            color: #f8fafc;
+            margin-bottom: 0.6rem;
         }
 
         .hero-subtitle {
-            font-size: 1rem;
-            line-height: 1.5;
             max-width: 760px;
-            opacity: 0.92;
+            color: #cbd5e1;
+            font-size: 1rem;
+            line-height: 1.55;
         }
 
         .panel {
-            border-radius: 24px;
-            padding: 1rem 1rem;
-            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.035));
-            border: 1px solid rgba(255,255,255,0.09);
-            box-shadow: 0 16px 40px rgba(0,0,0,0.18);
-            margin-bottom: 0.9rem;
-        }
-
-        .panel-soft {
-            border-radius: 22px;
             padding: 1rem;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            background: #111827;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.18);
             margin-bottom: 0.9rem;
         }
 
         .panel-title {
-            font-size: 1.06rem;
-            font-weight: 800;
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: #f8fafc;
             margin-bottom: 0.35rem;
         }
 
         .panel-text {
-            opacity: 0.86;
-            line-height: 1.55;
+            color: #cbd5e1;
             font-size: 0.94rem;
+            line-height: 1.55;
         }
 
         .chip {
             display: inline-block;
-            margin: 0.16rem 0.35rem 0.16rem 0;
-            padding: 0.42rem 0.78rem;
+            margin: 0.18rem 0.35rem 0.12rem 0;
+            padding: 0.42rem 0.75rem;
             border-radius: 999px;
+            background: rgba(59, 130, 246, 0.10);
+            border: 1px solid rgba(59, 130, 246, 0.20);
+            color: #dbeafe;
             font-size: 0.84rem;
             font-weight: 600;
-            background: linear-gradient(135deg, rgba(255,0,153,0.16), rgba(76,110,245,0.14));
-            border: 1px solid rgba(255,255,255,0.10);
         }
 
-        .metric-tile {
-            border-radius: 24px;
-            padding: 1rem 1rem 1.1rem 1rem;
+        .metric-card {
+            border-radius: 20px;
+            padding: 1rem 1rem 1.05rem 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.14);
             color: white;
-            border: 1px solid rgba(255,255,255,0.10);
-            box-shadow: 0 16px 42px rgba(0,0,0,0.18);
-            min-height: 120px;
+            min-height: 118px;
         }
 
-        .metric-pink {
-            background: linear-gradient(135deg, rgba(255,0,153,0.72), rgba(125,57,255,0.72));
+        .metric-blue {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
         }
 
         .metric-cyan {
-            background: linear-gradient(135deg, rgba(0,194,255,0.72), rgba(0,255,170,0.60));
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
         }
 
         .metric-amber {
-            background: linear-gradient(135deg, rgba(255,153,0,0.76), rgba(255,60,60,0.62));
+            background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%);
         }
 
         .metric-label {
             font-size: 0.88rem;
             font-weight: 700;
-            opacity: 0.95;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.45rem;
+            color: rgba(255,255,255,0.92);
         }
 
         .metric-value {
-            font-size: 2rem;
-            font-weight: 900;
+            font-size: 1.95rem;
+            font-weight: 800;
             line-height: 1;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.28rem;
         }
 
         .metric-sub {
             font-size: 0.82rem;
-            opacity: 0.92;
+            color: rgba(255,255,255,0.88);
         }
 
         .answer-box {
-            border-radius: 24px;
-            padding: 1rem 1rem;
-            background: linear-gradient(135deg, rgba(0,255,170,0.14), rgba(0,194,255,0.10));
-            border: 1px solid rgba(0,255,170,0.18);
-            line-height: 1.58;
+            background: rgba(16, 185, 129, 0.10);
+            border: 1px solid rgba(16, 185, 129, 0.24);
+            border-radius: 18px;
+            padding: 1rem;
+            color: #e5e7eb;
+            line-height: 1.6;
             white-space: pre-wrap;
-            box-shadow: 0 16px 38px rgba(0,0,0,0.16);
         }
 
         .eval-box {
-            border-radius: 24px;
-            padding: 1rem 1rem;
-            background: linear-gradient(135deg, rgba(255,0,153,0.12), rgba(125,57,255,0.10));
-            border: 1px solid rgba(255,0,153,0.18);
+            background: rgba(59, 130, 246, 0.10);
+            border: 1px solid rgba(59, 130, 246, 0.22);
+            border-radius: 18px;
+            padding: 1rem;
+            color: #e5e7eb;
             line-height: 1.55;
             white-space: pre-wrap;
-            box-shadow: 0 16px 38px rgba(0,0,0,0.16);
         }
 
         .empty-state {
             text-align: center;
             padding: 2rem 1rem;
-            border-radius: 24px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.03));
-            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            background: #111827;
+            border: 1px solid rgba(148, 163, 184, 0.14);
         }
 
         .empty-title {
-            font-size: 1.2rem;
-            font-weight: 800;
+            font-size: 1.12rem;
+            font-weight: 700;
+            color: #f8fafc;
             margin-bottom: 0.3rem;
         }
 
         .empty-text {
-            opacity: 0.82;
+            color: #cbd5e1;
+            line-height: 1.5;
         }
 
         .stButton > button {
-            border-radius: 14px;
-            font-weight: 800;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: linear-gradient(135deg, rgba(255,0,153,0.85), rgba(125,57,255,0.88));
+            border-radius: 12px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
             color: white;
-            box-shadow: 0 10px 24px rgba(125,57,255,0.28);
+            border: none;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
         }
 
         .stButton > button:hover {
-            filter: brightness(1.04);
+            filter: brightness(1.03);
         }
 
         .stTextInput > div > div > input {
-            border-radius: 14px;
-            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
         }
 
         [data-baseweb="tab-list"] {
@@ -362,20 +347,32 @@ def inject_custom_css():
 
         [data-baseweb="tab"] {
             border-radius: 999px !important;
+            background: rgba(255,255,255,0.04) !important;
             padding-left: 1rem !important;
             padding-right: 1rem !important;
-            background: rgba(255,255,255,0.05) !important;
         }
 
         [data-baseweb="tab"][aria-selected="true"] {
-            background: linear-gradient(135deg, rgba(255,0,153,0.28), rgba(76,110,245,0.28)) !important;
+            background: rgba(59, 130, 246, 0.14) !important;
         }
 
         .stExpander {
-            border-radius: 18px !important;
+            border-radius: 16px !important;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.08) !important;
-            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(148, 163, 184, 0.12) !important;
+            background: rgba(255,255,255,0.025);
+        }
+
+        .section-label {
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 0.5rem;
+        }
+
+        .helper-note {
+            color: #94a3b8;
+            font-size: 0.92rem;
         }
         </style>
         """,
@@ -383,15 +380,11 @@ def inject_custom_css():
     )
 
 
-def esc(text: str) -> str:
-    return html.escape(str(text)).replace("\n", "<br>")
-
-
 def render_hero(T):
     st.markdown(
         f"""
-        <div class="hero-shell">
-            <div class="hero-badge">✨ {esc(T["hero_badge"])}</div>
+        <div class="hero">
+            <div class="hero-badge">{esc(T["hero_badge"])}</div>
             <div class="hero-title">{esc(T["hero_title"])}</div>
             <div class="hero-subtitle">{esc(T["hero_subtitle"])}</div>
         </div>
@@ -400,7 +393,7 @@ def render_hero(T):
     )
 
 
-def render_info_panel(title, text):
+def render_panel(title, text):
     st.markdown(
         f"""
         <div class="panel">
@@ -412,23 +405,23 @@ def render_info_panel(title, text):
     )
 
 
-def render_sample_panel(title, chips):
-    chip_html = "".join([f'<span class="chip">{esc(chip)}</span>' for chip in chips])
+def render_chip_panel(title, items):
+    chips = "".join([f'<span class="chip">{esc(item)}</span>' for item in items])
     st.markdown(
         f"""
         <div class="panel">
             <div class="panel-title">{esc(title)}</div>
-            <div style="margin-top: 0.5rem;">{chip_html}</div>
+            <div style="margin-top:0.35rem;">{chips}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-def render_metric(label, value, subtitle, variant):
+def render_metric(label, value, subtitle, klass):
     st.markdown(
         f"""
-        <div class="metric-tile {variant}">
+        <div class="metric-card {klass}">
             <div class="metric-label">{esc(label)}</div>
             <div class="metric-value">{esc(value)}</div>
             <div class="metric-sub">{esc(subtitle)}</div>
@@ -450,7 +443,7 @@ def render_empty_state(title, text):
     st.markdown(
         f"""
         <div class="empty-state">
-            <div class="empty-title">🪐 {esc(title)}</div>
+            <div class="empty-title">📄 {esc(title)}</div>
             <div class="empty-text">{esc(text)}</div>
         </div>
         """,
@@ -487,19 +480,19 @@ if "file_reports" not in st.session_state:
 
 render_hero(T)
 
-top_left, top_right = st.columns([1.2, 1])
+top_left, top_right = st.columns([1.15, 1])
 
 with top_left:
-    render_info_panel(T["welcome_title"], T["welcome_text"])
+    render_panel(T["welcome_title"], T["welcome_text"])
 
 with top_right:
-    render_sample_panel(
+    render_chip_panel(
         T["sample_questions"],
         [T["sample_q1"], T["sample_q2"], T["sample_q3"]],
     )
 
 with st.sidebar:
-    st.markdown(f"### 🎛️ {T['upload_header']}")
+    st.markdown(f"### {T['upload_header']}")
 
     uploaded_files = st.file_uploader(
         T["upload_label"],
@@ -510,7 +503,7 @@ with st.sidebar:
 
     top_k = st.slider(T["top_sections"], 1, 5, 3)
 
-    if st.button(f"🚀 {T['process_files']}", use_container_width=True):
+    if st.button(T["process_files"], use_container_width=True):
         if not uploaded_files:
             st.warning(T["upload_first"])
         else:
@@ -527,7 +520,7 @@ with st.sidebar:
                 st.success(T["loaded_sections"].format(count=len(sections)))
 
     st.markdown("---")
-    with st.expander(f"ℹ️ {T['how_to_use']}", expanded=False):
+    with st.expander(T["how_to_use"], expanded=False):
         st.markdown(T["how_to_use_text"])
 
 processed_files_count = len(
@@ -538,14 +531,14 @@ contradictions_count = len(find_contradictions(st.session_state.sections)) if st
 
 m1, m2, m3 = st.columns(3)
 with m1:
-    render_metric(T["stats_documents"], processed_files_count, T["ready"], "metric-pink")
+    render_metric(T["stats_documents"], processed_files_count, T["ready"], "metric-blue")
 with m2:
     render_metric(T["stats_sections"], sections_count, T["ready"], "metric-cyan")
 with m3:
     render_metric(T["stats_contradictions"], contradictions_count, T["ready"], "metric-amber")
 
 if st.session_state.file_reports:
-    with st.expander(f"📁 {T['file_report']}", expanded=False):
+    with st.expander(T["file_report"], expanded=False):
         for report in st.session_state.file_reports:
             if report["status"] == "processed":
                 st.success(
@@ -557,7 +550,7 @@ if st.session_state.file_reports:
                 st.error(f"{report['file_name']} -> {report['message']}")
 
 tab1, tab2, tab3, tab4 = st.tabs(
-    [f"💬 {T['ask_tab']}", f"🧩 {T['view_tab']}", f"⚠️ {T['contradictions_tab']}", f"🧠 {T['insights_tab']}"]
+    [T["ask_tab"], T["view_tab"], T["contradictions_tab"], T["insights_tab"]]
 )
 
 with tab1:
@@ -596,14 +589,15 @@ with tab1:
                 col1, col2 = st.columns([1.65, 1])
 
                 with col1:
-                    st.markdown("### 💬 " + T["answer"])
+                    st.markdown(f'<div class="section-label">{T["answer"]}</div>', unsafe_allow_html=True)
                     render_answer_box(answer)
 
                 with col2:
-                    st.markdown("### 📊 " + T["evaluation"])
+                    st.markdown(f'<div class="section-label">{T["evaluation"]}</div>', unsafe_allow_html=True)
                     render_eval_box(evaluation)
 
-                st.markdown("### 📚 " + T["retrieved_sections"])
+                st.markdown("")
+                st.markdown(f'<div class="section-label">{T["retrieved_sections"]}</div>', unsafe_allow_html=True)
                 for sec in results:
                     with st.expander(
                         f"{sec['doc_name']} | {sec['full_section_title']} | Score: {sec['score']}",
@@ -615,7 +609,7 @@ with tab2:
     if not st.session_state.sections:
         render_empty_state(T["empty_state_title"], T["empty_state_text"])
     else:
-        st.markdown("### 🧩 " + T["all_sections"])
+        st.markdown(f'<div class="section-label">{T["all_sections"]}</div>', unsafe_allow_html=True)
         for sec in st.session_state.sections:
             with st.expander(f"{sec['doc_name']} | {sec['full_section_title']}"):
                 st.write(sec["text"])
@@ -627,7 +621,7 @@ with tab3:
         contradictions = find_contradictions(st.session_state.sections)
 
         if not contradictions:
-            st.success("✅ " + T["no_contradictions"])
+            st.success(T["no_contradictions"])
         else:
             st.warning(T["found_contradictions"].format(count=len(contradictions)))
 
@@ -649,13 +643,14 @@ with tab4:
     if not st.session_state.sections:
         render_empty_state(T["empty_state_title"], T["empty_state_text"])
     else:
-        st.markdown("### 🧠 " + T["decision_analysis"])
-        render_info_panel(T["decision_analysis"], T["decision_desc"])
+        st.markdown(f'<div class="section-label">{T["decision_analysis"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="helper-note">{T["decision_desc"]}</div>', unsafe_allow_html=True)
+        st.markdown("")
 
-        if st.button("✨ " + T["generate_insights"]):
+        if st.button(T["generate_insights"]):
             contradictions = find_contradictions(st.session_state.sections)
 
-            with st.spinner("🪄 " + T["generating_insights"]):
+            with st.spinner("✨ " + T["generating_insights"]):
                 st.session_state.decision_analysis = generate_decision_analysis(
                     sections=st.session_state.sections,
                     contradictions=contradictions,
