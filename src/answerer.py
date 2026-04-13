@@ -4,7 +4,6 @@ from google import genai
 
 
 def build_context(sections: List[Dict]) -> str:
-    """Build a grounded context block from retrieved sections."""
     context_parts = []
 
     for i, section in enumerate(sections, start=1):
@@ -19,8 +18,33 @@ Text: {section["text"]}
     return "\n".join(context_parts).strip()
 
 
-def build_prompt(query: str, context: str) -> str:
-    """Create a strict grounded-answer prompt in Swedish."""
+def build_prompt(query: str, context: str, language: str = "sv") -> str:
+    if language == "en":
+        return f"""
+You are a careful document assistant.
+
+Answer only based on the source text below.
+Do not make anything up.
+If the answer is not clearly found in the source text, clearly say that the information was not found in the uploaded documents.
+
+Always answer in English.
+
+Use this format:
+
+Answer:
+<your answer in English>
+
+Sources:
+- <document name>, <section>
+- <document name>, <section>
+
+Source text:
+{context}
+
+Question:
+{query}
+""".strip()
+
     return f"""
 Du är en noggrann dokumentassistent.
 
@@ -52,16 +76,19 @@ def generate_answer(
     sections: List[Dict],
     api_key: str,
     model_name: str,
+    language: str = "sv",
 ) -> str:
-    """Generate a grounded answer from retrieved sections using Gemini."""
     client = genai.Client(api_key=api_key)
 
     context = build_context(sections)
-    prompt = build_prompt(query, context)
+    prompt = build_prompt(query, context, language=language)
 
     response = client.models.generate_content(
         model=model_name,
         contents=prompt,
     )
 
-    return response.text.strip() if response.text else "Inget svar kunde genereras."
+    if response.text:
+        return response.text.strip()
+
+    return "No answer could be generated." if language == "en" else "Inget svar kunde genereras."
