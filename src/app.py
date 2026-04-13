@@ -2,18 +2,19 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
-from src.config import GEMINI_MODEL
-from src.pipeline import load_all_sections_from_uploads, run_retrieval
-from src.answerer import generate_answer
-from src.evaluator import evaluate_answer
-from src.contradiction_checker import find_contradictions
+from config import GEMINI_MODEL
+from pipeline import load_all_sections_from_uploads, run_retrieval
+from answerer import generate_answer
+from evaluator import evaluate_answer
+from contradiction_checker import find_contradictions
+from decision_engine import generate_decision_analysis
 
 load_dotenv()
 
 st.set_page_config(page_title="ClauseWise", page_icon="📄", layout="wide")
 
 st.title("📄 ClauseWise")
-st.caption("Document Intelligence with QA + Evaluation + Contradiction Detection")
+st.caption("Document Intelligence with QA, Evaluation, Contradiction Detection, and Decision Insights")
 
 # API KEY (works locally + cloud)
 api_key = os.getenv("GEMINI_API_KEY")
@@ -32,6 +33,8 @@ if "sections" not in st.session_state:
     st.session_state.sections = []
 if "processed" not in st.session_state:
     st.session_state.processed = False
+if "decision_analysis" not in st.session_state:
+    st.session_state.decision_analysis = None
 
 # Sidebar
 with st.sidebar:
@@ -52,11 +55,14 @@ with st.sidebar:
             with st.spinner("Processing files..."):
                 st.session_state.sections = load_all_sections_from_uploads(uploaded_files)
                 st.session_state.processed = True
+                st.session_state.decision_analysis = None
 
             st.success(f"Loaded {len(st.session_state.sections)} sections")
 
 # Tabs
-tab1, tab2, tab3 = st.tabs(["Ask Questions", "View Sections", "Contradictions"])
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["Ask Questions", "View Sections", "Contradictions", "Insights / Decisions"]
+)
 
 # TAB 1 — Ask Questions
 with tab1:
@@ -138,3 +144,25 @@ with tab3:
 
                     st.write("---")
                     st.write(f"**Numbers:** {c['numbers1']} vs {c['numbers2']}")
+
+# TAB 4 — Insights / Decisions
+with tab4:
+    if not st.session_state.sections:
+        st.info("No sections loaded yet.")
+    else:
+        st.subheader("Decision-Oriented Analysis")
+        st.write("Generate key findings, risks, and recommendations from the loaded documents.")
+
+        if st.button("Generate Insights"):
+            contradictions = find_contradictions(st.session_state.sections)
+
+            with st.spinner("Generating decision analysis..."):
+                st.session_state.decision_analysis = generate_decision_analysis(
+                    sections=st.session_state.sections,
+                    contradictions=contradictions,
+                    api_key=api_key,
+                    model_name=GEMINI_MODEL,
+                )
+
+        if st.session_state.decision_analysis:
+            st.text(st.session_state.decision_analysis)
