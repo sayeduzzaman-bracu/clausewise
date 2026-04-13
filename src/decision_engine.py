@@ -96,3 +96,11 @@ def generate_decision_analysis(
     )
 
     return response.text.strip() if response.text else "Ingen beslutsanalys kunde genereras."
+    prompt = build_decision_prompt(context)
+
+    response = client.models.generate_content(
+        model=model_name,
+        contents=prompt,
+    )
+
+    return response.text.strip() if response.text else "Ingen beslutsanalys kunde genereras."
