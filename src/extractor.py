@@ -1,5 +1,5 @@
 from pathlib import Path
-from src.utils import normalize_text
+from utils import normalize_text
 
 
 def extract_txt(file_path: Path):
