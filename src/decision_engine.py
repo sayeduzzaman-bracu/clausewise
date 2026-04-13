@@ -4,7 +4,6 @@ from google import genai
 
 
 def build_decision_context(sections: List[Dict], contradictions: List[Dict]) -> str:
-    """Build structured context for insight/risk/recommendation generation."""
     section_parts = []
     for i, sec in enumerate(sections, start=1):
         section_parts.append(
@@ -40,8 +39,43 @@ Detected Contradictions:
 """.strip()
 
 
-def build_decision_prompt(context: str) -> str:
-    """Prompt for decision-oriented analysis."""
+def build_decision_prompt(context: str, language: str = "sv") -> str:
+    if language == "en":
+        return f"""
+You are a careful document analyst.
+
+Analyze the document content and any contradictions.
+Your goal is to provide business- or decision-relevant insights.
+
+Always answer in English.
+
+Use EXACTLY this format:
+
+Key Findings:
+- <point 1>
+- <point 2>
+- <point 3>
+
+Risks:
+- <risk 1>
+- <risk 2>
+- <risk 3>
+
+Recommendations:
+- <recommendation 1>
+- <recommendation 2>
+- <recommendation 3>
+
+Rules:
+- Base your analysis only on the context.
+- Do not make anything up.
+- If contradictions exist, mention why they may matter.
+- If an area lacks obvious risk, write a cautious and reasonable observation.
+
+Context:
+{context}
+""".strip()
+
     return f"""
 Du är en noggrann dokumentanalytiker.
 
@@ -83,24 +117,19 @@ def generate_decision_analysis(
     contradictions: List[Dict],
     api_key: str,
     model_name: str,
+    language: str = "sv",
 ) -> str:
-    """Generate decision-oriented analysis from parsed sections and contradictions."""
     client = genai.Client(api_key=api_key)
 
     context = build_decision_context(sections, contradictions)
-    prompt = build_decision_prompt(context)
+    prompt = build_decision_prompt(context, language=language)
 
     response = client.models.generate_content(
         model=model_name,
         contents=prompt,
     )
 
-    return response.text.strip() if response.text else "Ingen beslutsanalys kunde genereras."
-    prompt = build_decision_prompt(context)
+    if response.text:
+        return response.text.strip()
 
-    response = client.models.generate_content(
-        model=model_name,
-        contents=prompt,
-    )
-
-    return response.text.strip() if response.text else "Ingen beslutsanalys kunde genereras."
+    return "No decision analysis could be generated." if language == "en" else "Ingen beslutsanalys kunde genereras."
